@@ -8,6 +8,7 @@ import (
 	"regexp"  // Paquete para trabajar con expresiones regulares, útil para encontrar y manipular patrones en cadenas
 	"strconv" // Paquete para convertir cadenas a otros tipos de datos, como enteros
 	"strings" // Paquete para manipular cadenas, como unir, dividir, y modificar contenido de cadenas
+	"os"     // Paquete para interactuar con el sistema operativo
 )
 
 // FDISK estructura que representa el comando fdisk con sus parámetros
@@ -78,6 +79,23 @@ func ParseFdisk(tokens []string) (*FDISK, error) {
 			if value == "" {
 				return nil, errors.New("el path no puede estar vacío")
 			}
+
+			// Verifica que el path exista
+			if !utils.FileExists(value) {
+				return nil, errors.New("el disco no existe")
+			}
+
+			// Verifica que el path sea un archivo
+			fileInfo, err := os.Stat(value)
+			if err != nil {
+				return nil, errors.New("error al verificar el path")
+			}
+
+			if fileInfo.IsDir() {
+				return nil, errors.New("el path no puede ser un directorio")
+			}
+
+			// Asigna el valor a la ruta del disco
 			cmd.path = value
 		case "-type":
 			// Verifica que el tipo sea "P", "E" o "L"
@@ -151,7 +169,7 @@ func commandFdisk(fdisk *FDISK) error {
 	} else if fdisk.typ == "E" {
 		fmt.Println("Creando partición extendida...") // Les toca a ustedes implementar la partición extendida
 	} else if fdisk.typ == "L" {
-		fmt.Println("Creando partición lógica...") // Les toca a ustedes implementar la partición lógica
+		fmt.Println("Creando partición lógica...") // Les -path="/home/xavi-13/Escritorio/MIA_1S2025_P1_202300596/backend/disks/DiscoLab.mia"toca a ustedes implementar la partición lógica
 	}
 
 	return nil
@@ -208,3 +226,4 @@ func createPrimaryPartition(fdisk *FDISK, sizeBytes int) error {
 
 	return nil
 }
+

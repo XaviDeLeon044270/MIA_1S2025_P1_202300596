@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"os"
 )
 
 // ConvertToBytes convierte un tamaño y una unidad a bytes
@@ -43,4 +44,31 @@ func GetLetter(path string) (string, error) {
 	}
 
 	return pathToLetter[path], nil
+}
+
+// GetPath obtiene el path asignado a una letra
+func GetPath(letter string) (string, error) {
+	// Buscar el path asociado a la letra
+	for path, assignedLetter := range pathToLetter {
+		if assignedLetter == letter {
+			return path, nil
+		}
+	}
+
+	fmt.Println("Error: no se encontró el path asociado a la letra")
+	return "", errors.New("no se encontró el path asociado a la letra")
+}
+
+// FileExists verifica si un archivo existe en la ruta especificada
+func FileExists(path string) bool {
+	// Intenta abrir el archivo en la ruta especificada
+	_, err := os.Open(path)
+	if err != nil {
+		// Si ocurre un error, verifica si es porque el archivo no existe
+		if os.IsNotExist(err) {
+			return false // El archivo no existe
+		}
+		return false // Ocurrió otro error al intentar abrir el archivo
+	}
+	return true // El archivo existe
 }
